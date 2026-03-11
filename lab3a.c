@@ -40,8 +40,8 @@ int main(){
   while(fgets(buf, BUFFER_SIZE, fptr) != NULL){
     int va = atoi(buf); // virtual address
     // for each VA in the text file, convert to PA and print the result
-    int page_num = va >> OFFSET_BITS;
-    int offset = va & MASK;
+    int page_num = va >> OFFSET_BITS; // the page number is the MSB of virtual address after the offset bits
+    int offset = va & MASK; // the mask keeps the offset bits and disregards the rest
     int frame_num = page_table[page_num];
     int pa = (frame_num << OFFSET_BITS) | offset; // bitwise OR operator to combine the frame number and offset
     printf("Virtual addr is %d: Page# = %d & Offset = %d. Physical addr: %d\n", va, page_num, offset, pa);
