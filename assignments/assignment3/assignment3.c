@@ -110,7 +110,7 @@ int main(){
         int offset = la & 0xFF; // mask MSB to capture 8 LSB
 
         // handling a logical address: lookup in tlb, if miss then page table, if page not in memory handle page fault
-        int frame_number = search_TLB(page);
+        int frame = search_TLB(page);
 
         if(frame_number == !-1){ // valid, tlb HIT!
             tlb_hits++;
@@ -122,33 +122,32 @@ int main(){
           // page fault if invalid
           if(frame == -1){
             int victim_frame = fifo_ptr;
-            fifo_ptr
-            ************** start coding here
-          
-          
-            // copy page from backing store to physical memory
-            frame_number = next_free_frame; // the faulted page will reside in the next available frame
-            next_free_frame = (next_free_frame +1) % FRAME_COUNT; // increment so the oldest frame is always replaced
-
-            // copy the 256 byte page from backing store to physical memory
-            memcpy(&physical_memory[frame_number * PAGE_SIZE], &backing_store[page_num * PAGE_SIZE], PAGE_SIZE);
-
-            pt[page_num] = frame_number; // record where the faulted page now lives 
+            fifo_ptr = (fifo_ptr + 1) % FRAME_COUNT;// update pointer
+            
+            // invalidate old page in page table
+            int old_page = frame_table[victim_frame];
+            if(old_page != -1){ // check if fetch will have valid index
+              page_table[old_page] = -1;
+            }
+            
+            memcpy(physical_memory[victim_frame], &backing_store[page * PAGE_SIZE], PAGE_SIZE); // load page from backing store
+            frame = victim_frame;
+            page_table[page] = frame;
+            frame_table[frame] = frame;
         }
+        add_TLB(page, frame); // add to tlb after page table resolution
 
-        // compute physical address and retrieve value
-        int pa = frame_number*PAGE_SIZE + offset;
-        signed char value = physical_memory[pa]; // values can be negative, so represent as -128 to 127
-
-        printf("Virtual address: %d  Physical address: %d  Value: %d    num %d \n", la, pa, value, num_addresses); // uses integer promotion to print value
-        num_addresses ++;
-    }
-
+        // address translation
+        int pa = frame * PAGE_SIZE + offset;
+        signed char value = backing_store[frame][offset];
+        printf("Virtual address: %d Physical address = %d: Value=%d", la, pa, offset); // output results, use integer promotion to print char
+      }
+      
+  
     fclose(address_file); // close the text file
     close(backing_fd); // close the backing file
-    munmap(backing_store, NUM_PT_ENTRIES*PAGE_SIZE); 
+    munmap(backing_store, NUM_PT_ENTRIES*PAGE_SIZE); // unmap backing store
 
-    printf("Total addresses = %d\n", num_addresses);
     printf("Page_faults = %d\n", page_faults);
     printf("TLB hits = %d\n", tlb_hits);
 
