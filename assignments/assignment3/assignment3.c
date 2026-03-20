@@ -135,7 +135,7 @@ int main(){
             frame_table[frame_num] = frame_num;
         }
         add_TLB(page_num, frame_num); // add to tlb after page table resolution
-
+      
         // address translation
         int pa = frame_num * PAGE_SIZE + offset;
         signed char value = backing_store[pa];
