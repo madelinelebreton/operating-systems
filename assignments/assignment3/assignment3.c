@@ -27,8 +27,8 @@ typedef struct {
 TLB_Struct tlb[TLB_SIZE]; // transfer lookaside buffer
 int tlb_index = 0;
 
-int pt[NUM_PT_ENTRIES]; // page table, -1 means not in memory
-int frame_table[FRAME_COUNT]; // track which page is in which frame
+int pt[NUM_PT_ENTRIES]; // page table, for mapping logical to physical addresses. -1 means not in memory
+int frame_table[FRAME_COUNT]; // track which page is in which frame, FIFO frame eviction when memory is full
 
 signed char physical_memory[FRAME_COUNT][PAGE_SIZE]; // need enough memory for 256 byte page x 2^8 pages. each index rep. 1 byte
 int fifo_ptr = 0; 
@@ -120,6 +120,7 @@ int main(){
           
           // page fault if invalid
           if(frame_num == -1){
+            page_faults++;
             int victim_frame = fifo_ptr;
             fifo_ptr = (fifo_ptr + 1) % FRAME_COUNT;// update pointer
             
@@ -132,7 +133,7 @@ int main(){
             memcpy(physical_memory[victim_frame], &backing_store[page_num * PAGE_SIZE], PAGE_SIZE); // load page from backing store
             frame_num = victim_frame;
             pt[page_num] = frame_num;
-            frame_table[frame_num] = frame_num;
+            frame_table[frame_num] = page_num;
           }
           add_TLB(page_num, frame_num); // add to tlb after page table resolution
         } // close else block for pt lookup
@@ -140,7 +141,8 @@ int main(){
       // address translation
       int pa = frame_num * PAGE_SIZE + offset;
       signed char value = backing_store[pa];
-      printf("Virtual address: %d Physical address = %d: Value=%d", la, pa, offset); // output results, use integer promotion to print char
+      num_addresses++;
+      printf("Virtual address: %d Physical address = %d: Value=%d \n", la, pa, backing_store[pa]); // output results, use integer promotion to print char
     } // close while loop
   
     // program cleanup
@@ -148,6 +150,7 @@ int main(){
     close(backing_fd); // close the backing file
     munmap(backing_store, NUM_PT_ENTRIES*PAGE_SIZE); // unmap backing store
 
+    printf("Total addresses = %d\n", num_addresses);
     printf("Page_faults = %d\n", page_faults);
     printf("TLB hits = %d\n", tlb_hits);
 
