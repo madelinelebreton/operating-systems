@@ -129,9 +129,9 @@ int main(){
               pt[old_page] = -1;
             }
             
-            memcpy(physical_memory[victim_frame], &backing_store[page * PAGE_SIZE], PAGE_SIZE); // load page from backing store
+            memcpy(physical_memory[victim_frame], &backing_store[page_num * PAGE_SIZE], PAGE_SIZE); // load page from backing store
             frame_num = victim_frame;
-            pt[page] = frame_num;
+            pt[page_num] = frame_num;
             frame_table[frame_num] = frame_num;
         }
         add_TLB(page_num, frame_num); // add to tlb after page table resolution
