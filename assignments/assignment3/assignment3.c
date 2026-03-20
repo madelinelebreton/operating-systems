@@ -15,7 +15,7 @@
 #define PAGE_SIZE 256 // page size 256 bytes
 #define NUM_PT_ENTRIES (1<<8) // one entry per page, with 16 bit VA - 8 bits for offset = 8 bits to rep. pages
 #define FRAME_COUNT (1<<7) // 15 bit PA, with 8 bit offset leaves 7 bits for frames
-#define TLB_SIZE (1<<4); // transfer lookaside buffer
+#define TLB_SIZE (1<<4) // transfer lookaside buffer
 
 // tlb structure, simulates cache for page table
 typedef struct {
@@ -65,7 +65,6 @@ void update_tlb(int page, int frame){
 }
       
 
-
 // main
 int main(){
     
@@ -110,36 +109,36 @@ int main(){
         int offset = la & 0xFF; // mask MSB to capture 8 LSB
 
         // handling a logical address: lookup in tlb, if miss then page table, if page not in memory handle page fault
-        int frame = search_TLB(page);
+        int frame_num = search_TLB(page_num);
 
-        if(frame_number == !-1){ // valid, tlb HIT!
+        if(frame_num != -1){ // valid, tlb HIT!
             tlb_hits++;
         }
         else{
           // page table lookup
-          frame = pt[page];
+          frame_num = pt[page_num];
           
           // page fault if invalid
-          if(frame == -1){
+          if(frame_num == -1){
             int victim_frame = fifo_ptr;
             fifo_ptr = (fifo_ptr + 1) % FRAME_COUNT;// update pointer
             
             // invalidate old page in page table
             int old_page = frame_table[victim_frame];
             if(old_page != -1){ // check if fetch will have valid index
-              page_table[old_page] = -1;
+              pt[old_page] = -1;
             }
             
             memcpy(physical_memory[victim_frame], &backing_store[page * PAGE_SIZE], PAGE_SIZE); // load page from backing store
-            frame = victim_frame;
-            page_table[page] = frame;
-            frame_table[frame] = frame;
+            frame_num = victim_frame;
+            pt[page] = frame_num;
+            frame_table[frame_num] = frame_num;
         }
-        add_TLB(page, frame); // add to tlb after page table resolution
+        add_TLB(page_num, frame_num); // add to tlb after page table resolution
 
         // address translation
-        int pa = frame * PAGE_SIZE + offset;
-        signed char value = backing_store[frame][offset];
+        int pa = frame_num * PAGE_SIZE + offset;
+        signed char value = backing_store[pa];
         printf("Virtual address: %d Physical address = %d: Value=%d", la, pa, offset); // output results, use integer promotion to print char
       }
       
@@ -152,4 +151,5 @@ int main(){
     printf("TLB hits = %d\n", tlb_hits);
 
     return 0;
+  }
 }
