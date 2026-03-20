@@ -133,15 +133,16 @@ int main(){
             frame_num = victim_frame;
             pt[page_num] = frame_num;
             frame_table[frame_num] = frame_num;
-        }
-        add_TLB(page_num, frame_num); // add to tlb after page table resolution
-      
-        // address translation
-        int pa = frame_num * PAGE_SIZE + offset;
-        signed char value = backing_store[pa];
-        printf("Virtual address: %d Physical address = %d: Value=%d", la, pa, offset); // output results, use integer promotion to print char
-      }
-      
+          }
+          add_TLB(page_num, frame_num); // add to tlb after page table resolution
+        } // close else block for pt lookup
+
+    // address translation
+    int pa = frame_num * PAGE_SIZE + offset;
+    signed char value = backing_store[pa];
+    printf("Virtual address: %d Physical address = %d: Value=%d", la, pa, offset); // output results, use integer promotion to print char
+  
+  
   
     fclose(address_file); // close the text file
     close(backing_fd); // close the backing file
@@ -151,5 +152,5 @@ int main(){
     printf("TLB hits = %d\n", tlb_hits);
 
     return 0;
-  }
+
 }
