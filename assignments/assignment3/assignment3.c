@@ -137,13 +137,13 @@ int main(){
           add_TLB(page_num, frame_num); // add to tlb after page table resolution
         } // close else block for pt lookup
 
-    // address translation
-    int pa = frame_num * PAGE_SIZE + offset;
-    signed char value = backing_store[pa];
-    printf("Virtual address: %d Physical address = %d: Value=%d", la, pa, offset); // output results, use integer promotion to print char
+      // address translation
+      int pa = frame_num * PAGE_SIZE + offset;
+      signed char value = backing_store[pa];
+      printf("Virtual address: %d Physical address = %d: Value=%d", la, pa, offset); // output results, use integer promotion to print char
+    } // close while loop
   
-  
-  
+    // program cleanup
     fclose(address_file); // close the text file
     close(backing_fd); // close the backing file
     munmap(backing_store, NUM_PT_ENTRIES*PAGE_SIZE); // unmap backing store
