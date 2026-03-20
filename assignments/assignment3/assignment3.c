@@ -140,9 +140,9 @@ int main(){
 
       // address translation
       int pa = frame_num * PAGE_SIZE + offset;
-      signed char value = backing_store[pa];
+      signed char value = physical_memory[frame_num][offset];
       num_addresses++;
-      printf("Virtual address: %d Physical address = %d: Value=%d \n", la, pa, backing_store[pa]); // output results, use integer promotion to print char
+      printf("Virtual address: %d Physical address = %d: Value=%d \n", la, pa, value); // output results, use integer promotion to print char
     } // close while loop
   
     // program cleanup
