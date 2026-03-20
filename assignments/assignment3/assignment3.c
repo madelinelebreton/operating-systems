@@ -28,7 +28,7 @@ TLB_Struct tlb[TLB_SIZE]; // transfer lookaside buffer
 int tlb_index = 0;
 
 int pt[NUM_PT_ENTRIES]; // page table, for mapping logical to physical addresses. -1 means not in memory
-int frame_table[FRAME_COUNT]; // track which page is in which frame, FIFO frame eviction when memory is full
+int ft[FRAME_COUNT]; // track which page is in which frame, FIFO frame eviction when memory is full
 
 signed char physical_memory[FRAME_COUNT][PAGE_SIZE]; // need enough memory for 256 byte page x 2^8 pages. each index rep. 1 byte
 int fifo_ptr = 0; 
@@ -75,7 +75,7 @@ int main(){
     
     // initialize tlb
     for(int i=0; i<TLB_SIZE; i++){
-      frame_table[i] = -1; // initialize values to -1
+      ft[i] = -1; // initialize values to -1
     }
 
     // open backing store. mmap() only works with a file descriptor so we use open() with O_RDONLY
@@ -125,7 +125,7 @@ int main(){
             fifo_ptr = (fifo_ptr + 1) % FRAME_COUNT;// update pointer
             
             // invalidate old page in page table
-            int old_page = frame_table[victim_frame];
+            int old_page = ft[victim_frame];
             if(old_page != -1){ // check if fetch will have valid index
               pt[old_page] = -1;
             }
@@ -133,7 +133,7 @@ int main(){
             memcpy(physical_memory[victim_frame], &backing_store[page_num * PAGE_SIZE], PAGE_SIZE); // load page from backing store
             frame_num = victim_frame;
             pt[page_num] = frame_num;
-            frame_table[frame_num] = page_num;
+            ft[frame_num] = page_num;
           }
           add_TLB(page_num, frame_num); // add to tlb after page table resolution
         } // close else block for pt lookup
