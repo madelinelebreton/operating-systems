@@ -39,7 +39,7 @@ int num_addresses = 0;
 
 
 // tlb functions
-int search_tlb(int page){ // search tlb for referenced page number
+int search_TLB(int page){ // search tlb for referenced page number
   for(int i=0; i<TLB_SIZE; i++){
     if(tlb[i].page == page)
       return tlb[i].frame; // return corresponding frame number
