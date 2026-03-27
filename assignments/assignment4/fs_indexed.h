@@ -13,7 +13,7 @@
 #define MAX_FILES 10
 #define MAX_BLOCKS 64
 #define MAX_BLOCKS_PER_FILE 8
-#define BLOCK_SIZE 2^10
+#define BLOCK_SIZE 1024
 
 
 // global file system instance. simulates single kernel instance
