@@ -46,21 +46,42 @@ Each file has a FIB that stores:
 
 
 ## Build Instructions
+
 Compile the project using the provided Makefile:
-** make **
+
+```bash
+make
+```
+
 
 ## Run Instructions
+
 Run the simulator:
-**./fs_sim**
-or 
-** make run **
+
+```bash
+./fs_sim
+```
+
+Or:
+
+```bash
+make run
+```
 
 ## Clean Build Files
-** make clean **
 
-# Example Output
+```bash
+make clean
+```
 
-# Project Structure
+
+## Example Output
+
+
+
+## Project Structure
+
+```
 .
 ├── main.c
 ├── fs_indexed.c
@@ -68,6 +89,10 @@ or
 ├── Makefile
 ├── file_system_diagram.jpg
 └── README.md
+```
 
-# Author
+---
+
+## Author
+
 Madeline LeBreton
