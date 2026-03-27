@@ -91,7 +91,7 @@ int createFile(char* filename, int size){
 
     fs.fileCount++; // increment counter
 
-    printf("File %s created with %d data blocks + %d index block\n", blocksNeeded, indexBlock);
+    printf("File %s created with %d data blocks + %d index block\n", filename, blocksNeeded, indexBlock);
 
     return 0; // success
 }
