@@ -24,13 +24,9 @@ void initFS(void){
     fs.freeList = NULL;
     for(int i=MAX_BLOCKS-1; i>=0; i--){
         FreeBlockNode* node = (FreeBlockNode*)malloc(sizeof(FreeBlockNode)); // dynamic memory allocation
-        /**
-         * Assigns the index value to the node's node member variable.
-         * Sets the current node's identifier or index to the value of i.
-         */
-        node-> node = i;
-        node-> next = fs.freeList;
-        fs.freeList = node;
+        node-> nodeNum = i; // set block number 
+        node-> next = fs.freeList; // point to current head of free list
+        fs.freeList = node; // update head of free list to new node
 
     }
 
@@ -41,81 +37,165 @@ void initFS(void){
 
 // file operations. mimic system calls
 int createFile(char* filename, int size){
-    
-    // compute required blocks
-    int dataBlocks = (size + BLOCK_SIZE-1)/BLOCK_SIZE; // need to add block size to avoid truncating down (ceiling division). for partial blocks
-    int totalBlocks = 2 + dataBlocks; // also need 1 for FIB and 1 for index block
+    // compute number of blocks needed
+    int blocksNeeded = ceil(size / BLOCK_SIZE);
 
-    // check file limit
-    if(fs.fileCount >= MAX_FILES){ // check that metadata can be stored
-        printf("Error: max file limit reached.\n"); 
-        return;
+    // check limits
+    if(fs.fileCount >= MAX_FILES) {
+        printf("Error: max files reached");
+        return -1;
+    }
+    if(blocksNeeded >= MAX_BLOCKS_PER_FILE){
+        printf("Error: file too large");
+        return -1;
     }
 
-    if(totalBlocks > fs.freeBlockCount == 0){ // check that disk has enough space
-        printf("Error: not enough free blocks.\n");
-        return;
-    }
-
-    // allocate FIB first, it's needed to point to the index block (pointer chain FIB > index block > data blocks)
-    int fibBlock = allocateFreeBlock();
-    if(fibBlock == -1){
-        printf("Error allocating FIB block\n");
-        return;
-    }
-
-    // allocate index block (file map)
-    int indexBlock = allocateFreeBlock();
-    if(indexBlock == -1){
-        printf("Error allocating index block.\n");
-        return;
-    }
-    
-    // allocate data blocks
-    int dataBlock;
-
-    for(int i=0; i< dataBlocks; i++){ // sequential file layout
-        dataBlock = allocateFreeBlock();
-        if(dataBlock == -1){
-            printf("Error allocating data block\n");
-            return;
+    // allocate FIB spot by finding a free entry
+    int fibID = -1;
+    for(int i=0; i< MAX_FILES; i++){
+        if(fs.fibStatus[i] == 0){ // free block found
+            fibID = i; // allocate this block
+            fs.fibStatus[i] = 1; // flag this block as used
+            break;
         }
-        // store pointers in index block array. indexBlock[i] = disk block number
-        fs.indexBlock[indexBlock][i] = dataBlock;
     }
 
+    if(fibID == -1) return -1; // no free entries found
+
+    // allocate index block
+    int indexBlock = allocateFreeBlock();
+    if(indexBlock == -1) return -1;
+
+    // allocate data blocks, storing in a temporary array first
+    int dataBlocks[MAX_BLOCKS_PER_FILE];
+    for(int i=0; i<blocksNeeded; i++){
+        int b = allocateFreeBlock();
+        if(b==-1) return -1; // error 
+        dataBlocks[i] = b;
+    }
+
+    for(int i=0; i< blocksNeeded; i++){
+        fs.blocks[indexBlock].data[i] = dataBlocks[i];
+    }
+
+    // write index block
+    FIB* f = &fs.directory[fibID]; // points to address of FIB
 
     // update directory
+    strcpy(f->filename, filename); // copy filename into FIB
+    f->fileSize = size;
+    f->fibID = fibID;
+    f->indexBlock = indexBlock;
+    f->numBlocks = blocksNeeded;
+
+    fs.fileCount++; // increment counter
+
+    printf("File %s created (FIBID=%d)\n", filename, fibID);
 }
 
-int deleteFile(char* filename);
-void listFiles(void);
+int deleteFile(char* filename){
+    // locate file FIB
+    int fibID = -1;
+    for(int i=0; i<MAX_BLOCKS; i++){
+        if(fs.fibStatus == 1 && strcmp(fs.directory[i].fileName, filename) == 0){
+            fibID = i;
+            break;
+        }
+    }
+    // error message if file not found
+    if(fibID == -1){
+        printf("Error: file note found\n");
+        return -1;
+    }
+
+    // get the file pointer
+    FIB* f = &fs.directory[fibID];
+
+    int indexBlock = f->indexBlock;
+
+    // get data stored in index block
+    unsigned char* data = fs.blocks[indexBlock].data;
+
+    // return all blocks used by the file, including index block, to the free block list
+    for(int i=0; i<f->numBlocks; i++){
+        int blockNum = data[i]; // block numbers are stored in the index block's data
+        returnFreeBlock(blockNum);
+    }
+    returnFreeBlock(indexBlock); // return index block
+
+    // return FIB ID to file system, and update available FIBs
+    fs.fibStatus[fibID] = 0; // mark FIB as free
+
+    fs.filecount--; // decrement counter because we deleted a file
+
+    // print success message
+    printf("File '%s' deleted", filename);
+
+}
+
+void listFiles(void){
+    printf("Root directory listing (%d files)\n", fs.fileCount);
+    for(int i=0; i<MAX_FILES; i++){
+        if(fs.fibStatus[i] == 1){ // if there is FIB entry
+            FIB* f = &fs.directory[i]; // f points to directory address
+            printf(" %s  |  %d bytes  |  %d data blocks |  FIBID=%d\n", f-> filename, f->fileSize, f->numBlocks, f->fibID);
+        }
+    }
+}
 
 // free block operations
 // remove a block from free block list and return it
 int allocateFreeBlock(void){
-    // fs.freeBlocks[] is list of available blocks
-    // fs.freeBlockCount is number of free blocks
-
     // check if no free blocks available
-    if(fs.freeBlockCount == 0){
-        return -1;
+    if(fs.freeList == NULL){
+        return -1; // no space in disk
     }
-    // get a block from end of free block list. constant time allocation without shifting (stack)
-    int block = fs.freeBlocks[fs.freeBlockCount-1];
-    // update free block count
-    fs.freeBlockCount--;
-    // return allocated block
-    return block;
+
+    FreeBlockNode* temp = fs.freeList; // store head of free block list
+    int blockNum = temp->nodeNum; // get block number to allocate
+    fs.freeList = fs.freeList->next; // update head of free block list to next node
+    free(temp); // free memory of allocated node
+
+    return blockNum; // return allocated block number
 }
 
 void returnFreeBlock(int block){
-    // return to end of free block list (stack implementation)
-    fs.freeBlockList[fs.freeBlockCount] = block;
-    // increment free block counter
-    fs.freeBlockCount++;
+    FreeBlockNode* node = (FreeBlockNode*)malloc(sizeof(FreeBlockNode));
+    node->nodeNum = block; // assign block to this node's number
+    node->next = NULL; // next pointer is null because it's at the end
+
+    // if the list is empty, place this node at the head
+    if(fs.freeList == NULL){
+        fs.freeList = node;
+        return;
+    }
+    // otherwise, traverse list until the end is reached
+    FreeBlockNode* temp = fs.freeList; // point to the head
+    while(temp->next != NULL){
+        temp = temp-> next; // move to next node
+    }
+
+    // add block to end of free block list
+    temp->next = node;
 }
 
 // utility
-void printFreeBlocks(void);
+void printFreeBlocks(void){
+    // traverse and count
+    int count = 0;
+    FreeBlockNode* temp = fs.freeBlockList;
+    while(temp != NULL){
+        count++;
+        temp = temp->next;
+    }
+
+    printf("Free blocks (%d): , count"); // print header
+    // traverse again and print values
+    temp = fs.freeList;
+    while(temp != NULL){
+        printf("[%d] -> ", temp->nodeNum);
+        temp = temp->next;
+    }
+    printf("NULL\n"); // reached end of free list
+}
 
