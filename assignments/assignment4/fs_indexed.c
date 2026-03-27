@@ -1,7 +1,7 @@
 // fs_indexed.c
 // implements indexed file system functions 
 
-#include <fs_indexed.h>
+#include "fs_indexed.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h> // for ceil
