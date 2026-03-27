@@ -1,6 +1,6 @@
 # Indexed File System Simulator
 
-# Overview
+## Overview
 
 This project is a simulation of an **indexed file system implemented in C**.  
 It demonstrates how an operating system can manage files using **blocks, indexing, and free space management**.
@@ -10,7 +10,6 @@ Each file is stored using:
 - Multiple **data blocks**
 - A **free block linked list** for allocation and deallocation
 
----
 
 ## Specifications
 
@@ -21,7 +20,6 @@ Each file is stored using:
 - Root directory listing with formatted output
 - Free blocks managed dynamically using a linked list
 
----
 
 # Core Components
 ![Diagram](file_system_diagram.jpg)
@@ -34,21 +32,18 @@ Each file has a FIB that stores:
 - List of allocated block indices
 - Unique FIB ID
 
----
 
 ### Free Block List
 - Implemented as a **singly linked list**
 - Tracks all available blocks
 - Updated on allocation and deallocation
 
----
 
 ### File System Structure
 - Directory of FIB entries, stored as an array
 - Free block head pointer
 - File count
 
----
 
 ## Build Instructions
 
