@@ -5,26 +5,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// global variables
+FileSystem fs; // file system global instance
+
+
 // inialize file system (mount operation)
 void initFS(void){
-    // initialize volume control block, metadata
-    fs.totalBlocks = MAX_BLOCKS;
-    fs.blockSize = BLOCK_SIZE;
 
     // initialize FIB table (directory)
     fs.fileCount = 0; // empty to start
 
-    // initialize free block list. OS knows which disk blocks availabile, in allcation order
-    int index = 0;
-    for(int i=0; i<MAX_BLOCKS; i++){
-        fs.freeBlocks[index] = i;
-        index++;
+    // initialize FIB status list
+    for(int i=0; i<MAX_FILES; i++){
+        fs.fibStatus[i]=0; // initialize to 0=free
     }
-    fs.freeBlockCount = index; // set counter
+
+    // create free block list
+    fs.freeList = NULL;
+    for(int i=MAX_BLOCKS-1; i>=0; i--){
+        FreeBlockNode* node = (FreeBlockNode*)malloc(sizeof(FreeBlockNode)); // dynamic memory allocation
+        /**
+         * Assigns the index value to the node's node member variable.
+         * Sets the current node's identifier or index to the value of i.
+         */
+        node-> node = i;
+        node-> next = fs.freeList;
+        fs.freeList = node;
+
+    }
 
     // print success message
     printf("File system mounted successfully\n");
-    printf("Total blocks: %d, block size %d", fs.totalBlocks, fs.blockSize);
+    printf("Total blocks: %d, block size %d bytes", MAX_BLOCKS, BLOCK_SIZE);
 }
 
 // file operations. mimic system calls

@@ -27,7 +27,7 @@ typedef struct Block{
 
 // node of free block linked list 
 typedef struct FreeBlockNode{
-    int node;
+    int nodeNum;
     struct FreeBlockNode* next;
 } FreeBlockNode;
 
