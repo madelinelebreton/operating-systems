@@ -1,19 +1,19 @@
-# <span style="color: lightgreen;">Indexed File System Simulator</span>
+# Indexed File System Simulator
 
-## <span style="color: lightgreen;">Overview</span>
+## Overview
 
 This project is a simulation of an **indexed file system implemented in C**.  
 It demonstrates how an operating system can manage files using **blocks, indexing, and free space management**.
 
 Each file is stored using:
-- <span style="color: lightcoral;">One index block (FIB)</span>
-- <span style="color: lightcoral;">Multiple data blocks</span>
-- <span style="color: lightcoral;">A free block linked list for allocation and deallocation</span>
+- One **index block (FIB)**
+- Multiple **data blocks**
+- A **free block linked list** for allocation and deallocation
 
 
-## <span style="color: lightgreen;">Specifications</span>
+## Specifications
 
-- Fixed-size block storage system  
+- Fixed-size block storage system 
 - Indexed file allocation (1 index block per file points to N data blocks)
 - File creation with block allocation
 - File deletion with block deallocation
@@ -21,13 +21,10 @@ Each file is stored using:
 - Free blocks managed dynamically using a linked list
 
 
-# <span style="color: lightgreen;">Core Components</span>
-
+# Core Components
 ![Diagram](file_system_diagram.jpg)
 
-
-### <span style="color: lightblue;">File Index Block (FIB)</span>
-
+### 🟦 File Index Block (FIB)
 Each file has a FIB that stores:
 - Filename
 - File size in bytes
@@ -36,23 +33,19 @@ Each file has a FIB that stores:
 - Unique FIB ID
 
 
-### <span style="color: lightblue;">Free Block List</span>
-
+### 🟥 Free Block List
 - Implemented as a **singly linked list**
 - Tracks all available blocks
 - Updated on allocation and deallocation
 
 
-### <span style="color: lightblue;">File System Structure</span>
-
+### 🟩 File System Structure
 - Directory of FIB entries, stored as an array
 - Free block head pointer
 - File count
 
 
-
 ## Build Instructions
-
 Compile the project using the provided Makefile:
 ** make **
 
