@@ -1,5 +1,5 @@
 // fs_indexed.c
-// implements file system functions 
+// implements indexed file system functions 
 
 #include <fs_indexed.h>
 #include <stdio.h>
