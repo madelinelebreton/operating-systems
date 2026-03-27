@@ -34,7 +34,6 @@ void initFS(void){
 
     // print success message
     printf("Filesystem initialized with %d blocks of %d bytes each.", MAX_BLOCKS, BLOCK_SIZE);
-    printf("Total blocks: %d, block size %d bytes", MAX_BLOCKS, BLOCK_SIZE);
 }
 
 // file operations. mimic system calls
@@ -92,7 +91,7 @@ int createFile(char* filename, int size){
 
     fs.fileCount++; // increment counter
 
-    printf("File %s created (FIBID=%d)\n", filename, fibID);
+    printf("File %s created with %d data blocks + %d index block\n", blocksNeeded, indexBlock);
 
     return 0; // success
 }
@@ -133,14 +132,14 @@ int deleteFile(char* filename){
     fs.fileCount--; // decrement counter because we deleted a file
 
     // print success message
-    printf("File '%s' deleted", filename);
+    printf("File '%s' deleted\n", filename);
 
     return 0; // success
 
 }
 
 void listFiles(void){
-    printf("Root directory listing (%d files)\n", fs.fileCount);
+    printf("\nRoot directory listing (%d files):\n", fs.fileCount);
     for(int i=0; i<MAX_FILES; i++){
         if(fs.fibStatus[i] == 1){ // if there is FIB entry
             FIB* f = &fs.directory[i]; // f points to directory address
