@@ -14,7 +14,7 @@ all: $(TARGET)
 
 # link object files
 $(TARGET): main.o fs_indexed.o
-	$(CC) $(CFLAGS) -o $(TARGET) main.o fs_indexed.o
+	$(CC) $(CFLAGS) -o $(TARGET) main.o fs_indexed.o -lm
 
 
 # compile main.c
