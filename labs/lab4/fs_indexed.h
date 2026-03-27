@@ -19,10 +19,6 @@
 // global file system instance. simulates single kernel instance
 extern FileSystem fs;
 
-// index block, integer array of all data blocks allocated to the file
-int indexBlock[MAX_BLOCKS_PER_FILE];
-
-
 // Block represents a fixed-size portion of the disk
 typedef struct Block{
     unsigned char data[BLOCK_SIZE];
@@ -39,9 +35,8 @@ typedef struct FreeBlockNode{
 typedef struct FIB{
   char filename[50];
   int fileSize; 
-  
   int fibID; // file identifier
-  int indexBlock; // single pointer to block holding index list
+  int indexBlock; // location of block holding index list
   int numBlocks; // number of data blocks used
 } FIB;
 
@@ -52,6 +47,7 @@ typedef struct FileSystem{
     Block blocks[MAX_BLOCKS]; // array of all blocks on disk
     FIB directory[MAX_FILES]; // in-memory directory structure storing all FIBs (flat, single-level)
     FreeBlockNode* freeList; // linked list of all free blocks for efficient insert/remove
+    int fibStatus[MAX_FILES]; // 0 = free, 1 = used
     int fileCount; // number of directory entries in use
 } FileSystem;
 
