@@ -33,7 +33,8 @@ void initFS(void){
     }
 
     // print success message
-    printf("File system initialized with %d blocks of %d bytes each.\n", MAX_BLOCKS, BLOCK_SIZE);
+    printf("File system mounted successfully\n");
+    printf("Total blocks: %d, block size %d bytes\n", MAX_BLOCKS, BLOCK_SIZE);
 }
 
 // file operations. mimic system calls
@@ -46,7 +47,7 @@ int createFile(char* filename, int size){
         printf("Error: max files reached");
         return -1;
     }
-    if(blocksNeeded >= MAX_BLOCKS_PER_FILE){
+    if(blocksNeeded > MAX_BLOCKS_PER_FILE){
         printf("Error: file too large");
         return -1;
     }
@@ -91,7 +92,7 @@ int createFile(char* filename, int size){
 
     fs.fileCount++; // increment counter
 
-    printf("File '%s' created with %d data blocks + 1 index block\n", filename, blocksNeeded);
+    printf("File %s created (FIBID=%d)\n", filename, fibID);
 
     return 0; // success
 }
@@ -132,14 +133,14 @@ int deleteFile(char* filename){
     fs.fileCount--; // decrement counter because we deleted a file
 
     // print success message
-    printf("File '%s' deleted\n", filename);
+    printf("File '%s' deleted", filename);
 
     return 0; // success
 
 }
 
 void listFiles(void){
-    printf("\nRoot directory listing (%d files):\n", fs.fileCount);
+    printf("\nRoot directory listing (%d files)\n", fs.fileCount);
     for(int i=0; i<MAX_FILES; i++){
         if(fs.fibStatus[i] == 1){ // if there is FIB entry
             FIB* f = &fs.directory[i]; // f points to directory address
@@ -194,7 +195,7 @@ void printFreeBlocks(void){
         temp = temp->next;
     }
 
-    printf("Free blocks (%d): ", count); // print header
+    printf("\nFree blocks (%d): ", count); // print header
     // traverse again and print values
     temp = fs.freeList;
     while(temp != NULL){
