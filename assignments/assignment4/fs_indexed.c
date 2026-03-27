@@ -33,7 +33,7 @@ void initFS(void){
     }
 
     // print success message
-    printf("Filesystem initialized with %d blocks of %d bytes each.", MAX_BLOCKS, BLOCK_SIZE);
+    printf("File system initialized with %d blocks of %d bytes each.\n", MAX_BLOCKS, BLOCK_SIZE);
 }
 
 // file operations. mimic system calls
