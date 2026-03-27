@@ -33,7 +33,7 @@ void initFS(void){
     }
 
     // print success message
-    printf("File system mounted successfully\n");
+    printf("Filesystem initialized with %d blocks of %d bytes each.", MAX_BLOCKS, BLOCK_SIZE);
     printf("Total blocks: %d, block size %d bytes", MAX_BLOCKS, BLOCK_SIZE);
 }
 
