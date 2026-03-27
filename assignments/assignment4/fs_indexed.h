@@ -5,8 +5,6 @@
 // header files
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <math.h> // needed for ceil() with division
 
 
 // system constants
@@ -14,10 +12,6 @@
 #define MAX_BLOCKS 64
 #define MAX_BLOCKS_PER_FILE 8
 #define BLOCK_SIZE 1024
-
-
-// global file system instance. simulates single kernel instance
-extern FileSystem fs;
 
 // Block represents a fixed-size portion of the disk
 typedef struct Block{
@@ -50,6 +44,9 @@ typedef struct FileSystem{
     int fibStatus[MAX_FILES]; // 0 = free, 1 = used
     int fileCount; // number of directory entries in use
 } FileSystem;
+
+// global file system instance. simulates single kernel instance. this comes after typedef
+extern FileSystem fs;
 
 
 // FUNCTION PROTOTYPES

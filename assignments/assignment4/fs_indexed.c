@@ -4,6 +4,8 @@
 #include <fs_indexed.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h> // for ceil
+#include <string.h> // for strcmp
 
 // global variables
 FileSystem fs; // file system global instance
@@ -38,7 +40,7 @@ void initFS(void){
 // file operations. mimic system calls
 int createFile(char* filename, int size){
     // compute number of blocks needed
-    int blocksNeeded = ceil(size / BLOCK_SIZE);
+    int blocksNeeded = (int)ceil((double)size / BLOCK_SIZE);
 
     // check limits
     if(fs.fileCount >= MAX_FILES) {
@@ -91,13 +93,15 @@ int createFile(char* filename, int size){
     fs.fileCount++; // increment counter
 
     printf("File %s created (FIBID=%d)\n", filename, fibID);
+
+    return 0; // success
 }
 
 int deleteFile(char* filename){
     // locate file FIB
     int fibID = -1;
-    for(int i=0; i<MAX_BLOCKS; i++){
-        if(fs.fibStatus == 1 && strcmp(fs.directory[i].fileName, filename) == 0){
+    for(int i=0; i<MAX_FILES; i++){
+        if(fs.fibStatus[i] == 1 && strcmp(fs.directory[i].filename, filename) == 0){
             fibID = i;
             break;
         }
@@ -126,10 +130,12 @@ int deleteFile(char* filename){
     // return FIB ID to file system, and update available FIBs
     fs.fibStatus[fibID] = 0; // mark FIB as free
 
-    fs.filecount--; // decrement counter because we deleted a file
+    fs.fileCount--; // decrement counter because we deleted a file
 
     // print success message
     printf("File '%s' deleted", filename);
+
+    return 0; // success
 
 }
 
@@ -183,13 +189,13 @@ void returnFreeBlock(int block){
 void printFreeBlocks(void){
     // traverse and count
     int count = 0;
-    FreeBlockNode* temp = fs.freeBlockList;
+    FreeBlockNode* temp = fs.freeList;
     while(temp != NULL){
         count++;
         temp = temp->next;
     }
 
-    printf("Free blocks (%d): , count"); // print header
+    printf("Free blocks (%d): ", count); // print header
     // traverse again and print values
     temp = fs.freeList;
     while(temp != NULL){
