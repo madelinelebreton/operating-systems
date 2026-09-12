@@ -1,0 +1,81 @@
+# Compiled object files
+*.o
+*.obj
+
+# Executables
+*.out
+*.exe
+*.app
+
+# Static and dynamic libraries
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+
+# Debug files
+*.dSYM/
+*.pdb
+
+# Build directories (common)
+build/
+bin/
+obj/
+cmake-build-*/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+
+# Autotools
+autom4te.cache/
+config.log
+config.status
+configure
+Makefile.in
+
+# Compiler-generated dependency files
+*.d
+
+# Core dumps
+core
+core.*
+
+# Logs
+*.log
+
+# Temporary files
+*~
+*.tmp
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# GDB
+.gdb_history
+
+# Valgrind
+vgcore.*
+
+# Linux kernel / OS project artifacts (if applicable)
+*.ko
+*.mod
+*.mod.c
+Module.symvers
+modules.order
+
+# QEMU / VM outputs (if used)
+*.img
+*.qcow2
